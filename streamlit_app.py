@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 # ------------------ HEADER ------------------
-st.title("⚡KD Music Player")
+st.title("⚡Sai Ram Music Player")
 st.subheader("Preview songs and open full music legally")
 
 st.info(
@@ -97,5 +97,6 @@ st.caption(
     "🎶 Built by Dharmik | Campus-Safe Music Player | Streamlit Project\n\n"
     "⚠️ Full songs are streamed only on official platforms due to legal and network policies."
 )
+
 
 
