@@ -1,39 +1,53 @@
 import streamlit as st
 import requests
 
+# Page config
 st.set_page_config(
     page_title="KD Music Player",
-    page_icon="🎵"
+    page_icon="🎵",
+    layout="centered"
 )
 
 st.title("🎵 KD Music Player")
-st.write("Search and play songs (audio only)")
+st.write("Search and play songs (30-second previews)")
 
+# User input
 song_name = st.text_input("Enter song name")
 
+# Search button
 if st.button("Search") and song_name:
     st.write("Searching...")
 
     try:
-        url = f"https://saavn.dev/api/search/songs?query={song_name}"
+        # iTunes Search API (OFFICIAL & FREE)
+        url = f"https://itunes.apple.com/search?term={song_name}&media=music&limit=10"
         response = requests.get(url, timeout=10)
 
         if response.status_code == 200:
             data = response.json()
-            songs = data.get("data", {}).get("results", [])
+            songs = data.get("results", [])
 
             if not songs:
                 st.warning("No songs found")
             else:
-                for song in songs[:10]:
+                for song in songs:
                     st.markdown(
-                        f"**{song['name']}** — {song['primaryArtists']}"
+                        f"**{song.get('trackName', 'Unknown')}** — {song.get('artistName', 'Unknown')}"
                     )
-                    audio_url = song["downloadUrl"][-1]["url"]
-                    st.audio(audio_url)
+
+                    # Album art
+                    if song.get("artworkUrl100"):
+                        st.image(song["artworkUrl100"], width=150)
+
+                    # 30-second preview audio
+                    if song.get("previewUrl"):
+                        st.audio(song["previewUrl"])
+                    else:
+                        st.info("No preview available")
+
                     st.divider()
         else:
             st.error("Failed to fetch songs")
 
-    except Exception:
-        st.error("Network error or API blocked")
+    except Exception as e:
+        st.error("Network error or API unavailable")
