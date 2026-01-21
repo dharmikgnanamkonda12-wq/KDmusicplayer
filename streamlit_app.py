@@ -3,12 +3,12 @@ import requests
 import webbrowser
 
 st.set_page_config(
-    page_title="Campus Music Player",
-    page_icon="🎵",
+    page_title="KD music player",
+    page_icon="⚡",
     layout="centered"
 )
 
-st.title("🎵 Campus Music Player")
+st.title("⚡KD music player")
 st.write("Preview songs and open full music legally")
 
 st.info("🔊 Previews play here. Full songs open in Spotify / YouTube.")
@@ -58,3 +58,4 @@ if st.button("Search") and query:
 
     except Exception:
         st.error("Network issue or API blocked")
+
