@@ -3,7 +3,7 @@ import requests
 
 # ------------------ PAGE CONFIG ------------------
 st.set_page_config(
-    page_title="KD Music Player",
+    page_title="Sai Ram Music Player",
     page_icon="⚡",
     layout="centered"
 )
@@ -97,4 +97,5 @@ st.caption(
     "🎶 Built by Dharmik | Campus-Safe Music Player | Streamlit Project\n\n"
     "⚠️ Full songs are streamed only on official platforms due to legal and network policies."
 )
+
 
