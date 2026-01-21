@@ -3,13 +3,13 @@ import requests
 
 # ------------------ PAGE CONFIG ------------------
 st.set_page_config(
-    page_title="Campus Music Player",
-    page_icon="🎵",
+    page_title="KD Music Player",
+    page_icon="⚡",
     layout="centered"
 )
 
 # ------------------ HEADER ------------------
-st.title("🎵 Campus Music Player")
+st.title("⚡KD Music Player")
 st.subheader("Preview songs and open full music legally")
 
 st.info(
@@ -97,3 +97,4 @@ st.caption(
     "🎶 Built by Dharmik | Campus-Safe Music Player | Streamlit Project\n\n"
     "⚠️ Full songs are streamed only on official platforms due to legal and network policies."
 )
+
