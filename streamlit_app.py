@@ -11,7 +11,7 @@ st.set_page_config(
 st.title("⚡KD music player")
 st.write("Preview songs and open full music legally")
 
-st.info("🔊 Previews play here. Full songs open in Spotify / YouTube.")
+st.info("🔊 Previews play here. For full songs use the given link below to redirect to Spotify / YouTube.")
 
 query = st.text_input("Enter song name")
 
@@ -58,4 +58,5 @@ if st.button("Search") and query:
 
     except Exception:
         st.error("Network issue or API blocked")
+
 
