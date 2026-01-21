@@ -1,62 +1,99 @@
 import streamlit as st
 import requests
-import webbrowser
 
+# ------------------ PAGE CONFIG ------------------
 st.set_page_config(
-    page_title="KD music player",
-    page_icon="⚡",
+    page_title="Campus Music Player",
+    page_icon="🎵",
     layout="centered"
 )
 
-st.title("⚡KD music player")
-st.write("Preview songs and open full music legally")
+# ------------------ HEADER ------------------
+st.title("🎵 Campus Music Player")
+st.subheader("Preview songs and open full music legally")
 
-st.info("🔊 Previews play here. For full songs use the given link below to redirect to Spotify / YouTube.")
+st.info(
+    "🔊 Due to campus network restrictions, full songs open on official platforms "
+    "(Apple Music / YouTube). Previews play directly here."
+)
 
-query = st.text_input("Enter song name")
+# ------------------ SEARCH INPUT ------------------
+query = st.text_input("🔍 Search for a song, artist, or album")
 
+# ------------------ SEARCH LOGIC ------------------
 if st.button("Search") and query:
-    try:
-        url = f"https://itunes.apple.com/search?term={query}&media=music&limit=10"
-        response = requests.get(url, timeout=10)
+    with st.spinner("Searching music..."):
+        try:
+            url = f"https://itunes.apple.com/search?term={query}&media=music&limit=10"
+            response = requests.get(url, timeout=10)
 
-        if response.status_code == 200:
-            data = response.json()
-            songs = data.get("results", [])
+            if response.status_code == 200:
+                data = response.json()
+                songs = data.get("results", [])
 
-            if not songs:
-                st.warning("No songs found")
+                if not songs:
+                    st.warning("No songs found.")
+                else:
+                    st.success(f"Found {len(songs)} results")
+
+                    # ------------------ SONG CARDS ------------------
+                    for song in songs:
+                        st.markdown("---")
+
+                        col1, col2 = st.columns([1, 3])
+
+                        # Album Art
+                        with col1:
+                            if song.get("artworkUrl100"):
+                                st.image(song["artworkUrl100"], width=120)
+
+                        # Song Info
+                        with col2:
+                            st.markdown(
+                                f"### {song.get('trackName', 'Unknown')}\n"
+                                f"**Artist:** {song.get('artistName', 'Unknown')}\n"
+                                f"**Album:** {song.get('collectionName', 'Unknown')}"
+                            )
+
+                            # Preview Audio (Campus-safe)
+                            if song.get("previewUrl"):
+                                try:
+                                    preview_audio = requests.get(
+                                        song["previewUrl"], timeout=10
+                                    ).content
+                                    st.audio(preview_audio, format="audio/mp3")
+                                except Exception:
+                                    st.caption("🔇 Preview unavailable")
+                            else:
+                                st.caption("🔇 Preview unavailable")
+
+                            # Action Buttons
+                            b1, b2 = st.columns(2)
+
+                            with b1:
+                                if song.get("trackViewUrl"):
+                                    st.link_button(
+                                        "🎧 Open in Apple Music",
+                                        song["trackViewUrl"]
+                                    )
+
+                            with b2:
+                                search_text = f"{song.get('trackName')} {song.get('artistName')}"
+                                yt_url = (
+                                    "https://www.youtube.com/results?search_query="
+                                    + search_text.replace(" ", "+")
+                                )
+                                st.link_button("📺 Search on YouTube", yt_url)
+
             else:
-                for song in songs:
-                    st.markdown(
-                        f"**{song.get('trackName', 'Unknown')}** — {song.get('artistName', 'Unknown')}"
-                    )
+                st.error("Failed to fetch songs. Please try again.")
 
-                    if song.get("artworkUrl100"):
-                        st.image(song["artworkUrl100"], width=150)
+        except Exception:
+            st.error("Network error or API unavailable.")
 
-                    # Preview (campus-safe)
-                    if song.get("previewUrl"):
-                        preview = requests.get(song["previewUrl"]).content
-                        st.audio(preview, format="audio/mp3")
-
-                    # Full song links
-                    col1, col2 = st.columns(2)
-
-                    with col1:
-                        if song.get("trackViewUrl"):
-                            st.link_button("▶ Open in Apple Music / iTunes", song["trackViewUrl"])
-
-                    with col2:
-                        search_q = f"{song.get('trackName')} {song.get('artistName')}"
-                        yt_url = f"https://www.youtube.com/results?search_query={search_q.replace(' ', '+')}"
-                        st.link_button("▶ Search on YouTube", yt_url)
-
-                    st.divider()
-        else:
-            st.error("Failed to fetch songs")
-
-    except Exception:
-        st.error("Network issue or API blocked")
-
-
+# ------------------ FOOTER ------------------
+st.markdown("---")
+st.caption(
+    "🎶 Built by Dharmik | Campus-Safe Music Player | Streamlit Project\n\n"
+    "⚠️ Full songs are streamed only on official platforms due to legal and network policies."
+)
