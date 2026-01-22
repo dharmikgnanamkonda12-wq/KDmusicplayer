@@ -94,9 +94,10 @@ if st.button("Search") and query:
 # ------------------ FOOTER ------------------
 st.markdown("---")
 st.caption(
-    "🎶 Built by Dharmik | Campus-Safe Music Player | Streamlit Project\n\n"
+    "Campus-Safe Music Player | Streamlit Project\n\n"
     "⚠️ Full songs are streamed only on official platforms due to legal and network policies."
 )
+
 
 
 
