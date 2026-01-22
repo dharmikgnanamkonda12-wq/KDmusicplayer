@@ -97,7 +97,3 @@ st.caption(
     "Campus-Safe Music Player | Streamlit Project\n\n"
     "⚠️ Full songs are streamed only on official platforms due to legal and network policies."
 )
-
-
-
-
