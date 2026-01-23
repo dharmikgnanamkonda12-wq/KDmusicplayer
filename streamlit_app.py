@@ -1,70 +1,33 @@
 import streamlit as st
-streamlit_app.py
+from song import Song
 
-# IMPORTANT: your existing import
-# from your_module import Song
-
-# ------------------ PAGE CONFIG ------------------
+# Page config
 st.set_page_config(
     page_title="Sai Ram Music Player",
-    page_icon="🎵",
-    layout="centered"
+    page_icon="🎵"
 )
 
-# ------------------ HEADER ------------------
+# Title
 st.title("🎵 Sai Ram Music Player")
 st.subheader("Listen to full songs")
 
-st.info(
-    "🎧 Songs are streamed using the internal Song engine"
-)
+# Search box
+query = st.text_input("Search for a song or artist")
 
-# ------------------ SEARCH INPUT ------------------
-query = st.text_input("🔍 Search for a song or artist")
-
-# ------------------ SEARCH LOGIC ------------------
+# Button logic
 if st.button("Search") and query:
-    with st.spinner("Fetching songs..."):
-        try:
-            song = Song()
-            gen = song.paginate_songs(query)
+    try:
+        song = Song()
+        gen = song.paginate_songs(query)
 
-            found = False
+        for batch in gen:
+            for item in batch:
+                data = item["item"]["data"]
 
-            # Each batch contains ~100 songs
-            for batch in gen:
-                for idx, item in enumerate(batch):
-                    found = True
-                    st.markdown("---")
+                st.markdown(f"### 🎶 {data['name']}")
+                st.audio(data["audio_url"])
+            break
 
-                    data = item["item"]["data"]
-
-                    # Song title
-                    st.markdown(f"### 🎶 {data.get('name', 'Unknown')}")
-
-                    # Optional metadata
-                    if "artist" in data:
-                        st.caption(f"👤 Artist: {data['artist']}")
-
-                    # FULL AUDIO URL (this depends on YOUR Song backend)
-                    if "audio_url" in data:
-                        st.audio(data["audio_url"])
-                    else:
-                        st.warning("Audio stream unavailable")
-
-                # Stop after first page (remove this if you want infinite load)
-                break
-
-            if not found:
-                st.warning("No songs found.")
-
-        except Exception as e:
-            st.error("Failed to load songs.")
-            st.exception(e)
-
-# ------------------ FOOTER ------------------
-st.markdown("---")
-st.caption(
-    "Sai Ram Music Player | Full Song Streaming"
-)
-
+    except Exception as e:
+        st.error("Something went wrong")
+        st.exception(e)
