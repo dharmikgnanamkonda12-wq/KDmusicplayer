@@ -1,33 +1,49 @@
 import streamlit as st
 from song import Song
 
-# Page config
+# ------------------ PAGE CONFIG ------------------
 st.set_page_config(
     page_title="Sai Ram Music Player",
-    page_icon="🎵"
+    page_icon="🎵",
+    layout="centered"
 )
 
-# Title
+# ------------------ HEADER ------------------
 st.title("🎵 Sai Ram Music Player")
 st.subheader("Listen to full songs")
 
-# Search box
-query = st.text_input("Search for a song or artist")
+st.info("Songs are streamed using the internal Song engine")
 
-# Button logic
+# ------------------ SEARCH INPUT ------------------
+query = st.text_input("🔍 Search for a song or artist")
+
+# ------------------ SEARCH LOGIC ------------------
 if st.button("Search") and query:
     try:
         song = Song()
-        gen = song.paginate_songs(query)
+        generator = song.paginate_songs(query)
 
-        for batch in gen:
+        found = False
+
+        for batch in generator:
             for item in batch:
+                found = True
                 data = item["item"]["data"]
 
+                st.markdown("---")
                 st.markdown(f"### 🎶 {data['name']}")
+                st.caption(f"👤 Artist: {data['artist']}")
                 st.audio(data["audio_url"])
-            break
+
+            break  # show only first page
+
+        if not found:
+            st.warning("No songs found.")
 
     except Exception as e:
-        st.error("Something went wrong")
+        st.error("Failed to load songs.")
         st.exception(e)
+
+# ------------------ FOOTER ------------------
+st.markdown("---")
+st.caption("Sai Ram Music Player | Full Song Streaming Demo")
