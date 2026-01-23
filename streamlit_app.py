@@ -1,91 +1,68 @@
 import streamlit as st
-import requests
+
+# IMPORTANT: your existing import
+# from your_module import Song
 
 # ------------------ PAGE CONFIG ------------------
 st.set_page_config(
-    page_title="Sai Ram Full Music Player",
-    page_icon="🎧",
+    page_title="Sai Ram Music Player",
+    page_icon="🎵",
     layout="centered"
 )
 
 # ------------------ HEADER ------------------
-st.title("🎧 Sai Ram Full Music Player")
-st.subheader("Stream full-length songs (Legal & Campus-Safe)")
+st.title("🎵 Sai Ram Music Player")
+st.subheader("Listen to full songs")
 
 st.info(
-    "🎶 This player streams full songs from the Internet Archive "
-    "(public domain & artist-uploaded content)."
+    "🎧 Songs are streamed using the internal Song engine"
 )
 
 # ------------------ SEARCH INPUT ------------------
-query = st.text_input("🔍 Search song, artist, or album")
+query = st.text_input("🔍 Search for a song or artist")
 
 # ------------------ SEARCH LOGIC ------------------
 if st.button("Search") and query:
-    with st.spinner("Searching full songs..."):
+    with st.spinner("Fetching songs..."):
         try:
-            search_url = (
-                "https://archive.org/advancedsearch.php"
-                f"?q={query}"
-                "&fl[]=identifier"
-                "&fl[]=title"
-                "&fl[]=creator"
-                "&fl[]=year"
-                "&rows=10"
-                "&page=1"
-                "&output=json"
-            )
+            song = Song()
+            gen = song.paginate_songs(query)
 
-            response = requests.get(search_url, timeout=10)
-            data = response.json()
+            found = False
 
-            docs = data["response"]["docs"]
-
-            if not docs:
-                st.warning("No full songs found.")
-            else:
-                st.success(f"Found {len(docs)} full songs")
-
-                for song in docs:
+            # Each batch contains ~100 songs
+            for batch in gen:
+                for idx, item in enumerate(batch):
+                    found = True
                     st.markdown("---")
 
-                    col1, col2 = st.columns([1, 3])
+                    data = item["item"]["data"]
 
-                    # Album Art
-                    with col1:
-                        cover_url = (
-                            f"https://archive.org/services/img/{song['identifier']}"
-                        )
-                        st.image(cover_url, width=120)
+                    # Song title
+                    st.markdown(f"### 🎶 {data.get('name', 'Unknown')}")
 
-                    # Song Info
-                    with col2:
-                        st.markdown(
-                            f"### {song.get('title', 'Unknown')}\n"
-                            f"**Artist:** {song.get('creator', 'Unknown')}\n"
-                            f"**Year:** {song.get('year', 'N/A')}"
-                        )
+                    # Optional metadata
+                    if "artist" in data:
+                        st.caption(f"👤 Artist: {data['artist']}")
 
-                        # Full Audio URL
-                        audio_url = (
-                            f"https://archive.org/download/"
-                            f"{song['identifier']}/"
-                            f"{song['identifier']}.mp3"
-                        )
+                    # FULL AUDIO URL (this depends on YOUR Song backend)
+                    if "audio_url" in data:
+                        st.audio(data["audio_url"])
+                    else:
+                        st.warning("Audio stream unavailable")
 
-                        st.audio(audio_url)
+                # Stop after first page (remove this if you want infinite load)
+                break
 
-                        st.link_button(
-                            "🌐 View on Internet Archive",
-                            f"https://archive.org/details/{song['identifier']}"
-                        )
+            if not found:
+                st.warning("No songs found.")
 
         except Exception as e:
-            st.error("Network error or Archive API unavailable.")
+            st.error("Failed to load songs.")
+            st.exception(e)
 
 # ------------------ FOOTER ------------------
 st.markdown("---")
 st.caption(
-    "⚡ Full-Length Music Streaming using Internet Archive\n"
-    "📚 Legal | Free | Campus-Safe"
+    "Sai Ram Music Player | Full Song Streaming"
 )
