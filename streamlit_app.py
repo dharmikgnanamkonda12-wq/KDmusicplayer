@@ -3,97 +3,89 @@ import requests
 
 # ------------------ PAGE CONFIG ------------------
 st.set_page_config(
-    page_title="Sai Ram Music Player",
-    page_icon="⚡",
+    page_title="Sai Ram Full Music Player",
+    page_icon="🎧",
     layout="centered"
 )
 
 # ------------------ HEADER ------------------
-st.title("⚡Sai Ram Music Player")
-st.subheader("Preview songs and open full music legally")
+st.title("🎧 Sai Ram Full Music Player")
+st.subheader("Stream full-length songs (Legal & Campus-Safe)")
 
 st.info(
-    "🔊 Due to campus network restrictions, full songs open on official platforms "
-    "(Apple Music / YouTube). Previews play directly here."
+    "🎶 This player streams full songs from the Internet Archive "
+    "(public domain & artist-uploaded content)."
 )
 
 # ------------------ SEARCH INPUT ------------------
-query = st.text_input("🔍 Search for a song, artist, or album")
+query = st.text_input("🔍 Search song, artist, or album")
 
 # ------------------ SEARCH LOGIC ------------------
 if st.button("Search") and query:
-    with st.spinner("Searching music..."):
+    with st.spinner("Searching full songs..."):
         try:
-            url = f"https://itunes.apple.com/search?term={query}&media=music&limit=10"
-            response = requests.get(url, timeout=10)
+            search_url = (
+                "https://archive.org/advancedsearch.php"
+                f"?q={query}"
+                "&fl[]=identifier"
+                "&fl[]=title"
+                "&fl[]=creator"
+                "&fl[]=year"
+                "&rows=10"
+                "&page=1"
+                "&output=json"
+            )
 
-            if response.status_code == 200:
-                data = response.json()
-                songs = data.get("results", [])
+            response = requests.get(search_url, timeout=10)
+            data = response.json()
 
-                if not songs:
-                    st.warning("No songs found.")
-                else:
-                    st.success(f"Found {len(songs)} results")
+            docs = data["response"]["docs"]
 
-                    # ------------------ SONG CARDS ------------------
-                    for song in songs:
-                        st.markdown("---")
-
-                        col1, col2 = st.columns([1, 3])
-
-                        # Album Art
-                        with col1:
-                            if song.get("artworkUrl100"):
-                                st.image(song["artworkUrl100"], width=120)
-
-                        # Song Info
-                        with col2:
-                            st.markdown(
-                                f"### {song.get('trackName', 'Unknown')}\n"
-                                f"**Artist:** {song.get('artistName', 'Unknown')}\n"
-                                f"**Album:** {song.get('collectionName', 'Unknown')}"
-                            )
-
-                            # Preview Audio (Campus-safe)
-                            if song.get("previewUrl"):
-                                try:
-                                    preview_audio = requests.get(
-                                        song["previewUrl"], timeout=10
-                                    ).content
-                                    st.audio(preview_audio, format="audio/mp3")
-                                except Exception:
-                                    st.caption("🔇 Preview unavailable")
-                            else:
-                                st.caption("🔇 Preview unavailable")
-
-                            # Action Buttons
-                            b1, b2 = st.columns(2)
-
-                            with b1:
-                                if song.get("trackViewUrl"):
-                                    st.link_button(
-                                        "🎧 Open in Apple Music",
-                                        song["trackViewUrl"]
-                                    )
-
-                            with b2:
-                                search_text = f"{song.get('trackName')} {song.get('artistName')}"
-                                yt_url = (
-                                    "https://www.youtube.com/results?search_query="
-                                    + search_text.replace(" ", "+")
-                                )
-                                st.link_button("📺 Search on YouTube", yt_url)
-
+            if not docs:
+                st.warning("No full songs found.")
             else:
-                st.error("Failed to fetch songs. Please try again.")
+                st.success(f"Found {len(docs)} full songs")
 
-        except Exception:
-            st.error("Network error or API unavailable.")
+                for song in docs:
+                    st.markdown("---")
+
+                    col1, col2 = st.columns([1, 3])
+
+                    # Album Art
+                    with col1:
+                        cover_url = (
+                            f"https://archive.org/services/img/{song['identifier']}"
+                        )
+                        st.image(cover_url, width=120)
+
+                    # Song Info
+                    with col2:
+                        st.markdown(
+                            f"### {song.get('title', 'Unknown')}\n"
+                            f"**Artist:** {song.get('creator', 'Unknown')}\n"
+                            f"**Year:** {song.get('year', 'N/A')}"
+                        )
+
+                        # Full Audio URL
+                        audio_url = (
+                            f"https://archive.org/download/"
+                            f"{song['identifier']}/"
+                            f"{song['identifier']}.mp3"
+                        )
+
+                        st.audio(audio_url)
+
+                        st.link_button(
+                            "🌐 View on Internet Archive",
+                            f"https://archive.org/details/{song['identifier']}"
+                        )
+
+        except Exception as e:
+            st.error("Network error or Archive API unavailable.")
 
 # ------------------ FOOTER ------------------
 st.markdown("---")
 st.caption(
-    "Campus-Safe Music Player | Streamlit Project\n\n"
-    "⚠️ Full songs are streamed only on official platforms due to legal and network policies."
+    "⚡ Full-Length Music Streaming using Internet Archive\n"
+    "📚 Legal | Free | Campus-Safe"
 )
