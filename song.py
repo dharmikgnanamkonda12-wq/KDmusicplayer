@@ -1,27 +1,39 @@
+import requests
+
 class Song:
     def paginate_songs(self, query):
-        """
-        This simulates a song engine.
-        Later you can replace this with a real API or embed logic.
-        """
 
-        yield [
-            {
+        API_URL = ""          # ADD API URL HERE
+        API_KEY = ""          # ADD API KEY HERE (IF REQUIRED)
+
+        headers = {
+            # ADD REQUIRED HEADERS HERE
+        }
+
+        params = {
+            # ADD REQUIRED QUERY PARAMS HERE (example: "q": query)
+        }
+
+        response = requests.get(
+            API_URL,
+            headers=headers,
+            params=params,
+            timeout=10
+        )
+
+        data = response.json()
+
+        batch = []
+
+        for item in []:       # REPLACE [] WITH SONG LIST FROM API RESPONSE
+            batch.append({
                 "item": {
                     "data": {
-                        "name": f"{query} - Sample Song 1",
-                        "artist": "Demo Artist",
-                        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+                        "name": "",       # MAP SONG NAME HERE
+                        "artist": "",     # MAP ARTIST NAME HERE
+                        "audio_url": ""   # MAP PLAYABLE AUDIO / EMBED URL HERE
                     }
                 }
-            },
-            {
-                "item": {
-                    "data": {
-                        "name": f"{query} - Sample Song 2",
-                        "artist": "Demo Artist",
-                        "audio_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
-                    }
-                }
-            }
-        ]
+            })
+
+        yield batch
