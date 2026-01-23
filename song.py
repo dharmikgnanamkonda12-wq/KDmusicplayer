@@ -3,15 +3,16 @@ import requests
 class Song:
     def paginate_songs(self, query):
 
-        API_URL = ""          # ADD API URL HERE
-        API_KEY = ""          # ADD API KEY HERE (IF REQUIRED)
+        API_URL = "https://example-api.com/search"
+        API_KEY = "YOUR_API_KEY"
 
         headers = {
-            # ADD REQUIRED HEADERS HERE
+            "Authorization": f"Bearer {API_KEY}"
         }
 
         params = {
-            # ADD REQUIRED QUERY PARAMS HERE (example: "q": query)
+            "query": query,
+            "limit": 10
         }
 
         response = requests.get(
@@ -25,13 +26,13 @@ class Song:
 
         batch = []
 
-        for item in []:       # REPLACE [] WITH SONG LIST FROM API RESPONSE
+        for item in data["results"]:
             batch.append({
                 "item": {
                     "data": {
-                        "name": "",       # MAP SONG NAME HERE
-                        "artist": "",     # MAP ARTIST NAME HERE
-                        "audio_url": ""   # MAP PLAYABLE AUDIO / EMBED URL HERE
+                        "name": item["title"],
+                        "artist": item["artist"],
+                        "audio_url": item["audio"]
                     }
                 }
             })
